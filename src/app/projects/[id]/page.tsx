@@ -1,22 +1,47 @@
 "use client"
 import ProjectHeader from "@/components/ProjectHeader"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import BoardView from "../BoardView"
 import ListView from "../ListView"
 import TimelineView from "../TimeLine"
 import TableView from "../TableView"
+import { useGetTasksQuery } from "@/state/api"
+import NoProjects from "../NoTasks"
 
 type Props = {
-  params: { id: string }
+  params: { id: number }
 }
 
 const Project = ({ params }: Props) => {
   const { id } = params
   const [activeTab, setActiveTab] = useState("Board")
   const [isModalNewTaskOpen, setisModalNewTaskOpen] = useState(false)
+  const [taskExist, setTaskExist] = useState(false)
+
+  const { data: tasks } = useGetTasksQuery({
+    projectId: id,
+  })
+
+  useEffect(() => {
+    if (tasks && tasks.length > 0) {
+      setTaskExist(true)
+    } else {
+      setTaskExist(false)
+    }
+  }, [tasks])
+
+  if (!taskExist) {
+    return <NoProjects />
+  }
+
   return (
     <div>
-      <ProjectHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ProjectHeader
+        taskExist={taskExist}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+
       {activeTab === "Board" && (
         <BoardView id={id} setIsModalNewTaskOpen={setisModalNewTaskOpen} />
       )}

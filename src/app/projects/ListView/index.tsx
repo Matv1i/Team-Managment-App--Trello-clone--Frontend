@@ -1,11 +1,11 @@
 import Header from "@/components/Header"
-import TaskCard from "@/components/TaskCard"
+import TaskCard from "@/components/Cards/TaskCard"
 import { Task, useGetTasksQuery } from "@/state/api"
 import { isError } from "lodash"
 import React from "react"
 
 type Props = {
-  id: string
+  id: number
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 

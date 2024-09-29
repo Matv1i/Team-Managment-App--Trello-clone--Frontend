@@ -17,7 +17,7 @@ import { format } from "date-fns"
 import Image from "next/image"
 
 type BoardProps = {
-  id: string
+  id: number
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 

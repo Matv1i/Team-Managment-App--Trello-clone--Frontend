@@ -1,5 +1,6 @@
 import Image from "next/image"
+import HomePage from "./home/page"
 
 export default function Home() {
- return <h1 className="text-white">Hello World </h1>
+  return <HomePage />
 }
