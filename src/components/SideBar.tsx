@@ -116,12 +116,28 @@ const Sidebar = () => {
               <SidebarLink
                 icon={AlertCircle}
                 label="Urgent"
-                href="/priority/urgent "
+                href="/priority/urgent"
               />
-              <SidebarLink icon={AlertTriangle} label="High" href="/teams" />
-              <SidebarLink icon={AlertOctagon} label="Medium" href="/teams" />
-              <SidebarLink icon={ShieldAlert} label="Low" href="/teams" />
-              <SidebarLink icon={Layers} label="Backlog" href="/teams" />
+              <SidebarLink
+                icon={AlertTriangle}
+                label="High"
+                href="/priority/high"
+              />
+              <SidebarLink
+                icon={AlertOctagon}
+                label="Medium"
+                href="/priority/medium"
+              />
+              <SidebarLink
+                icon={ShieldAlert}
+                label="Low"
+                href="/priority/low"
+              />
+              <SidebarLink
+                icon={Layers}
+                label="Backlog"
+                href="/priority/backlog"
+              />
             </>
           )}
         </nav>

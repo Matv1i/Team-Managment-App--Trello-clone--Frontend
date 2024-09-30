@@ -13,7 +13,7 @@ import {
 import Image from "next/image"
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils"
 
-const CustomToolBar = () => (
+const CustomToolbar = () => (
   <GridToolbarContainer className="toolbar flex gap-2">
     <GridToolbarFilterButton />
     <GridToolbarExport />
@@ -43,15 +43,14 @@ const Teams = () => {
       <Header name="Teams" />
       <div style={{ height: 650, width: "100%" }}>
         <DataGrid
-          getRowId={(row) => row.userId}
+          rows={teams || []}
+          columns={columns}
           pagination
           slots={{
-            toolbar: CustomToolBar,
+            toolbar: CustomToolbar,
           }}
           className={dataGridClassNames}
           sx={dataGridSxStyles(isDarkMode)}
-          rows={teams || []}
-          columns={columns}
         />
       </div>
     </div>
