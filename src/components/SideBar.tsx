@@ -61,7 +61,12 @@ const Sidebar = () => {
           )}
         </div>
         <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700 ">
-          <Image src="/logo.png" alt="logo" width={40} height={40} />
+          <Image
+            src="https://pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/logo.webp"
+            alt="logo"
+            width={40}
+            height={40}
+          />
           <div>
             <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
               EDROH TEAM
