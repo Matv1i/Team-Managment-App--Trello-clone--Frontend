@@ -6,7 +6,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/",
+        hostname: "pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com",
         port: "",
         pathname: "/**",
       },
@@ -15,3 +15,5 @@ const nextConfig = {
 }
 
 export default nextConfig
+
+//https://pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/logo.png
