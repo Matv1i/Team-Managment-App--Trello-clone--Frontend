@@ -8,11 +8,13 @@ import {
   Settings,
   Sidebar,
   Sun,
+  User,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { useDispatch } from "react-redux"
+import LoginNavBar from "./LoginNavBar"
 
 const Navbar = () => {
   const dispatch = useAppDispatch()
@@ -21,6 +23,7 @@ const Navbar = () => {
     (state) => state.global.isSidebarCollapsed
   )
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
+
   return (
     <div className="flex items-center justify-between bg-white px-4 py-3 dark:bg-black">
       <div className="flex items-center gap-8 ">
@@ -40,7 +43,7 @@ const Navbar = () => {
           />
         </div>
       </div>
-      <div className="flex items-center ">
+      <div className="flex items-center gap-1.5 ">
         <button
           className={
             isDarkMode
@@ -65,7 +68,7 @@ const Navbar = () => {
         >
           <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
         </Link>
-        <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1em] bg-gray-200 md:inline-block"></div>
+        <LoginNavBar />
       </div>
     </div>
   )

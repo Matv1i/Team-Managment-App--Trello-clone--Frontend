@@ -3,13 +3,16 @@
 import ModalNewTask from "@/components/Modals/ModalNewTask"
 import { PlusSquare } from "lucide-react"
 import React, { useState } from "react"
-
-const NoProjects = () => {
+type props = {
+  id: string
+}
+const NoProjects = ({ id }: props) => {
   const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false)
 
   return (
     <div className="w-full h-full flex justify-center items-center">
       <ModalNewTask
+        id={id}
         isOpen={isModalNewProjectOpen}
         onClose={() => setIsModalNewProjectOpen(false)}
       />

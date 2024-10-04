@@ -5,8 +5,8 @@ import { X } from "lucide-react"
 
 type Props = {
   children: React.ReactNode
-  isOpen: boolean
-  onClose: () => void
+  isOpen?: boolean
+  onClose?: () => void
   name: string
 }
 
@@ -19,7 +19,7 @@ const Modal = ({ children, isOpen, onClose, name }: Props) => {
         <div className="flex w-full justify-between">
           <Header name={name} isSmallText />
           <button
-            className="flex justify-center h-7 w-7 items-center rounded-full bg-blue-primary text-white hover:bg-blue-700"
+            className="flex justify-center h-7 w-7 items-center rounded-full"
             onClick={onClose}
           >
             <X size={17} />

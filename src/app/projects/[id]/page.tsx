@@ -9,11 +9,12 @@ import { useGetTasksQuery } from "@/state/api"
 import NoProjects from "../NoTasks"
 
 type Props = {
-  params: { id: number }
+  params: { id: string }
 }
 
 const Project = ({ params }: Props) => {
   const { id } = params
+  console.log(id)
   const [activeTab, setActiveTab] = useState("Board")
   const [isModalNewTaskOpen, setisModalNewTaskOpen] = useState(false)
   const [taskExist, setTaskExist] = useState(false)
@@ -31,7 +32,7 @@ const Project = ({ params }: Props) => {
   }, [tasks])
 
   if (!taskExist) {
-    return <NoProjects />
+    return <NoProjects id={id} />
   }
 
   return (

@@ -1,20 +1,23 @@
+"use client"
 import Modal from "@/components/Modals/Modal"
 import {
   Priority,
   Status,
   useCreateProjectMutation,
   useCreateTaskMutation,
+  useGetCurrentUserInfoMutation,
+  User,
 } from "@/state/api"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { formatISO } from "date-fns"
 
 type Props = {
   isOpen: boolean
   onClose: () => void
-  id?: string | null
+  id: string
 }
 
-const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
+const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -23,21 +26,40 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [tags, setTags] = useState("")
   const [startDate, setStartDate] = useState(new Date())
   const [dueDate, setDueDate] = useState("")
-  const [authorUserId, setAuthorUserId] = useState("")
+  const [userId, setUserId] = useState<string>("")
   const [assignedUserId, setAssignedUserId] = useState("")
   const [projectId, setProjectId] = useState("")
+  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user: User = await getCurrentUserInfo().unwrap()
+        console.log(user)
+        if (user) {
+          setUserId(user.userId)
+          setProjectId(id)
+        }
+      } catch (error) {
+        console.error("Failed to fetch user info", error)
+      }
+    }
+    fetchUser()
+  }, [getCurrentUserInfo])
 
   const handleSubmit = async () => {
-    if (!title || !authorUserId || !(id !== null || projectId)) return
+    if (!title || !status || !priority || !status) return
 
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",
     })
+
     const formattedDueDate = formatISO(new Date(dueDate), {
       representation: "complete",
     })
-
-    await createTask({
+    console.log(typeof formattedDueDate)
+    console.log(projectId)
+    const newTask = await createTask({
       title,
       description,
       status,
@@ -45,14 +67,16 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
       tags,
       startDate: formattedStartDate,
       dueDate: formattedDueDate,
-      authorUserId: parseInt(authorUserId),
-      assignedUserId: parseInt(assignedUserId),
-      projectId: id !== null ? Number(id) : Number(projectId),
+      authorUserId: userId,
+      assignedUserId: assignedUserId,
+      projectId,
     })
-  }
-
-  const isFormValid = () => {
-    return title && authorUserId && !(id !== null || !projectId)
+    console.log(newTask)
+    if (newTask.error) {
+      alert("Something went wrong")
+    } else {
+      onClose()
+    }
   }
 
   const selectStyles =
@@ -134,13 +158,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             onChange={(e) => setDueDate(e.target.value)}
           />
         </div>
-        <input
-          type="text"
-          className={inputStyles}
-          placeholder="Author User ID"
-          value={authorUserId}
-          onChange={(e) => setAuthorUserId(e.target.value)}
-        />
+
         <input
           type="text"
           className={inputStyles}
@@ -148,20 +166,10 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
           value={assignedUserId}
           onChange={(e) => setAssignedUserId(e.target.value)}
         />
-        {id === null && (
-          <input
-            type="text"
-            className={inputStyles}
-            placeholder="ProjectId"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-          />
-        )}
+
         <button
           type="submit"
-          className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            !isFormValid() || isLoading ? "cursor-not-allowed opacity-50" : ""
-          }`}
+          className={`focus-offset-2 mt-4 flex w-full justify-center rounded-md border border-transparent bg-blue-primary px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 `}
         >
           {isLoading ? "Creating..." : "Create Task"}
         </button>

@@ -1,5 +1,8 @@
 import Modal from "@/components/Modals/Modal"
-import { useCreateProjectMutation } from "@/state/api"
+import {
+  useCreateProjectMutation,
+  useGetCurrentUserInfoMutation,
+} from "@/state/api"
 import React, { useState } from "react"
 import { formatISO } from "date-fns"
 
@@ -14,9 +17,16 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const [description, setDescription] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
+  const [userId, setUserId] = useState<string | undefined>(undefined)
+  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
 
   const handleSubmit = async () => {
     if (!isFormValid()) return
+
+    const user = await getCurrentUserInfo().unwrap()
+    if (user) {
+      setUserId(user.userId)
+    }
 
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",
@@ -25,12 +35,19 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
       representation: "complete",
     })
 
-    await createProject({
+    const newProject = await createProject({
       name: projectName,
       description,
       startDate: formattedStartDate,
       endDate: formattedEndDate,
+      userId,
     })
+
+    if (newProject.error) {
+      alert("Something went wrong")
+    } else {
+      onClose()
+    }
   }
 
   const isFormValid = () => {

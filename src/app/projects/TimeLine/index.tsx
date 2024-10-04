@@ -6,7 +6,7 @@ import { DisplayOption, Gantt, ViewMode } from "gantt-task-react"
 import "gantt-task-react/dist/index.css"
 
 type Props = {
-  id: number
+  id: string
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 
@@ -14,11 +14,7 @@ type TaskTypeItems = "task" | "milestone" | "project"
 const TimelineView = ({ id, setIsModalNewTaskOpen }: Props) => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
 
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) })
+  const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId: id })
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,

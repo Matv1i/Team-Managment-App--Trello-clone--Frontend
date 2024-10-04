@@ -1,5 +1,5 @@
 "use client"
-import React from "react"
+import React, { useContext, useEffect } from "react"
 import { useState } from "react"
 import Image from "next/image"
 import {
@@ -16,9 +16,10 @@ import {
   Search,
   Settings,
   ShieldAlert,
-  User,
   Users,
   X,
+  User2Icon,
+  Plus,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useDispatch } from "react-redux"
@@ -27,18 +28,51 @@ import Link from "next/link"
 import { Home } from "lucide-react"
 import isSideBarCollapsed, { setIsSidebarCollapsed } from "@/state/index"
 
-import { useGetProjectsQuery } from "@/state/api"
+import { useGetCurrentUserInfoMutation, useGetProjectsQuery } from "@/state/api"
+import { error } from "console"
+import { Project, User } from "@/state/api"
+import { Button } from "@mui/material"
+import ModalNewProject from "./Modals/ModalNewProject"
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(true)
   const [showPriority, setShowPriority] = useState(true)
+  const [openProject, setOpenProject] = useState(false)
+  const [userId, setUserId] = useState<string>("")
+  const [projects, setProjects] = useState<Project[] | []>([])
 
   const dispatch = useDispatch()
   const isSideBarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed
   )
 
-  const { data: projects } = useGetProjectsQuery()
+  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user: User = await getCurrentUserInfo().unwrap()
+        console.log(user)
+        if (user) {
+          setUserId(user.userId)
+        }
+      } catch (error) {
+        console.error("Failed to fetch user info", error)
+      }
+    }
+    fetchUser()
+  }, [getCurrentUserInfo])
+
+  const { data: projectsData, isLoading: isProjectsLoading } =
+    useGetProjectsQuery(userId, {
+      skip: !userId,
+    })
+
+  useEffect(() => {
+    if (projectsData) {
+      if (Array.isArray(projectsData)) setProjects(projectsData)
+    }
+  }, [projectsData])
 
   const sidebarClassnames = `fixed flex flex-col  h-full 
   justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-black overflow-x-hidden bg-white ${isSideBarCollapsed ? "w-0 hidden" : "w-64"} `
@@ -82,7 +116,7 @@ const Sidebar = () => {
           <SidebarLink icon={Briefcase} label="TimeLine" href="/timeline" />
           <SidebarLink icon={Search} label="Search" href="/search" />
           <SidebarLink icon={Settings} label="Settings" href="/settings" />
-          <SidebarLink icon={User} label="Users" href="/users" />
+          <SidebarLink icon={User2Icon} label="Users" href="/users" />
           <SidebarLink icon={Users} label="Teams" href="/teams" />
 
           <button
@@ -96,8 +130,16 @@ const Sidebar = () => {
               <ChevronDown className="h-5 w-5" />
             )}
           </button>
+          {showProjects && (
+            <button
+              className={`w-full relative flex cursor-pointer items-center gap-3 transition-colors hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-700  justify-start px-8 py-3`}
+              onClick={() => setOpenProject(true)}
+            >
+              <Plus size={17} /> New Project
+            </button>
+          )}
           {showProjects &&
-            projects?.map((project) => (
+            projects.map((project) => (
               <SidebarLink
                 key={project.id}
                 icon={Briefcase}
@@ -147,6 +189,12 @@ const Sidebar = () => {
           )}
         </nav>
       </div>
+      {openProject && (
+        <ModalNewProject
+          isOpen={openProject}
+          onClose={() => setOpenProject(false)}
+        />
+      )}
     </div>
   )
 }

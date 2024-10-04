@@ -2,11 +2,12 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { Search } from "lucide-react"
 
 export interface Project {
-  id: number
+  id: string
   name: string
   description?: string
   startDate?: string
   endDate?: string
+  userId?: string
 }
 
 export enum Status {
@@ -25,7 +26,7 @@ export enum Priority {
 }
 
 export interface Task {
-  id: number
+  id: string
   title: string
   description?: string
   status?: Status
@@ -34,9 +35,9 @@ export interface Task {
   startDate?: string
   dueDate?: string
   points?: number
-  projectId: number
-  authorUserId?: number
-  assignedUserId?: number
+  projectId: string
+  authorUserId?: string
+  assignedUserId?: string
 
   author?: User
   assignee: User
@@ -44,19 +45,21 @@ export interface Task {
   attachments?: Attachment[]
 }
 export interface User {
-  userId?: number
+  userId: string
   username: string
   email: string
+  password: string
+
   profilePictureUrl?: string
   cognitoId?: string
   teamId?: number
 }
 export interface Attachment {
-  id: number
+  id: string
   fileURL: string
   fileName: string
-  taskId: number
-  uploadedBy: number
+  taskId: string
+  uploadedBy: string
 }
 export interface SearchResults {
   tasks?: Task[]
@@ -65,20 +68,26 @@ export interface SearchResults {
 }
 
 export interface Team {
-  taskId: number
+  taskId: string
   teamName?: string
   productOwnerUserId?: number
   projectManagerUserId?: number
 }
 
 export const api = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    credentials: "include",
+  }),
   reducerPath: "api",
-  tagTypes: ["Projects", "Tasks", "Users", "Teams"],
+  tagTypes: ["Projects", "Tasks", "User", "Teams"],
   endpoints: (build) => ({
-    getProjects: build.query<Project[], void>({
-      query: () => "projects",
+    getProjects: build.query<Project[], String>({
+      query: (userId) => `projects/${userId}`,
       providesTags: ["Projects"],
+    }),
+    getProjectId: build.query<String, String>({
+      query: (userId) => `projects/projectId/${userId}`,
     }),
     createProject: build.mutation<Project, Partial<Project>>({
       query: (project) => ({
@@ -88,14 +97,14 @@ export const api = createApi({
       }),
       invalidatesTags: ["Projects"],
     }),
-    getTasks: build.query<Task[], { projectId: number }>({
+    getTasks: build.query<Task[], { projectId: string }>({
       query: ({ projectId }) => `tasks?projectId=${projectId}`,
       providesTags: (result) =>
         result
           ? result.map(({ id }) => ({ type: "Tasks" as const, id }))
           : [{ type: "Tasks" as const }],
     }),
-    getTaskByUser: build.query<Task[], number>({
+    getTaskByUser: build.query<Task[], string>({
       query: (userId) => `tasks/user/${userId}`,
       providesTags: (result, error, userId) =>
         result
@@ -110,7 +119,33 @@ export const api = createApi({
       }),
       invalidatesTags: ["Tasks"],
     }),
-    updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
+    createUser: build.mutation<User, Partial<User>>({
+      query: (user) => ({
+        url: "users/register",
+        method: "POST",
+        body: user,
+      }),
+    }),
+    loginUser: build.mutation<User, Partial<User>>({
+      query: (user) => ({
+        url: "users/login",
+        method: "POST",
+        body: user,
+      }),
+    }),
+    getCurrentUserInfo: build.query<User, void>({
+      query: () => ({
+        url: "/users/getUser",
+      }),
+    }),
+    deleteCookies: build.mutation<VoidFunction, void>({
+      query: () => ({
+        url: "/users/cookies",
+        method: "POST",
+      }),
+    }),
+
+    updateTaskStatus: build.mutation<Task, { taskId: string; status: string }>({
       query: ({ taskId, status }) => ({
         url: `tasks/${taskId}/status`,
         method: "PATCH",
@@ -125,10 +160,12 @@ export const api = createApi({
     }),
     getUsers: build.query<User[], void>({
       query: () => "users",
-      providesTags: ["Users"],
+
+      providesTags: ["User"],
     }),
     getTeams: build.query<Team[], void>({
       query: () => "teams",
+
       providesTags: ["Teams"],
     }),
   }),
@@ -144,4 +181,9 @@ export const {
   useGetUsersQuery,
   useGetTeamsQuery,
   useGetTaskByUserQuery,
+  useCreateUserMutation,
+  useLoginUserMutation,
+  useGetCurrentUserInfoQuery,
+  useDeleteCookiesMutation,
+  useGetProjectIdQuery,
 } = api

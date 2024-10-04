@@ -17,21 +17,17 @@ import { format } from "date-fns"
 import Image from "next/image"
 
 type BoardProps = {
-  id: number
+  id: string
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 
 const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"]
 
 const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
-  const {
-    data: tasks,
-    isLoading,
-    error,
-  } = useGetTasksQuery({ projectId: Number(id) })
+  const { data: tasks, isLoading, error } = useGetTasksQuery({ projectId: id })
   const [updateTaskStatus] = useUpdateTaskStatusMutation()
 
-  const moveTask = (taskId: number, toStatus: string) => {
+  const moveTask = (taskId: string, toStatus: string) => {
     updateTaskStatus({
       taskId,
       status: toStatus,
@@ -60,7 +56,7 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
 type TaskColumnProps = {
   status: string
   tasks: TaskType[]
-  moveTask: (taskId: number, toStatus: string) => void
+  moveTask: (taskId: string, toStatus: string) => void
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 
@@ -72,7 +68,7 @@ const TaskColumn = ({
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop({
     accept: "task",
-    drop: (item: { id: number }) => moveTask(item.id, status),
+    drop: (item: { id: string }) => moveTask(item.id, status),
     collect: (monitor: any) => ({
       isOver: !!monitor.isOver(),
     }),

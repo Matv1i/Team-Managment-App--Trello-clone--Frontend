@@ -8,7 +8,7 @@ import { useAppSelector } from "@/app/redux"
 import { format } from "date-fns"
 
 type Props = {
-  id: number
+  id: string
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 
@@ -68,11 +68,7 @@ export const columns: GridColDef[] = [
 ]
 
 const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) })
+  const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId: id })
   if (isLoading) return <h1>Loading...</h1>
   if (error) return <h1>An error occurred while fetching tasks</h1>
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)

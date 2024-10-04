@@ -5,7 +5,12 @@ import TaskCard from "@/components/Cards/TaskCard"
 import Header from "@/components/Header"
 import ModalNewTask from "@/components/Modals/ModalNewTask"
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils"
-import { Priority, Task, useGetTaskByUserQuery } from "@/state/api"
+import {
+  Priority,
+  Task,
+  useGetCurrentUserInfoMutation,
+  useGetTaskByUserQuery,
+} from "@/state/api"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import React, { useState } from "react"
 
@@ -17,14 +22,12 @@ const ReusablePriority = ({ priority }: Props) => {
   const [view, setView] = useState("list")
   const [isModalOpen, setIsOpenModal] = useState(false)
 
-  const userId = 1
+  const { data: user } = useGetCurrentUserInfoMutation()
   const {
     data: tasks,
     isLoading,
     isError: isTaskError,
-  } = useGetTaskByUserQuery(userId || 0, {
-    skip: userId === null,
-  })
+  } = useGetTaskByUserQuery(user.userId)
 
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
 

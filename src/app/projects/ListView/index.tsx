@@ -5,16 +5,12 @@ import { isError } from "lodash"
 import React from "react"
 
 type Props = {
-  id: number
+  id: string
   setIsModalNewTaskOpen: (isOpen: boolean) => void
 }
 
 const ListView = ({ id, setIsModalNewTaskOpen }: Props) => {
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) })
+  const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId: id })
 
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error!</div>
