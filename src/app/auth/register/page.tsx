@@ -1,7 +1,5 @@
 "use client"
 
-import { useAppDispatch } from "@/app/redux"
-import { setUserEmail } from "@/state"
 import { useCreateUserMutation } from "@/state/api"
 import Link from "next/link"
 import { useRouter } from "next/navigation"

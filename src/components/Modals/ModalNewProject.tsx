@@ -1,10 +1,11 @@
 import Modal from "@/components/Modals/Modal"
 import {
   useCreateProjectMutation,
-  useGetCurrentUserInfoMutation,
+  useGetCurrentUserInfoQuery,
 } from "@/state/api"
 import React, { useState } from "react"
 import { formatISO } from "date-fns"
+import { useAppSelector } from "@/app/redux"
 
 type Props = {
   isOpen: boolean
@@ -17,16 +18,10 @@ const ModalNewProject = ({ isOpen, onClose }: Props) => {
   const [description, setDescription] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
-  const [userId, setUserId] = useState<string | undefined>(undefined)
-  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
+  const userId = useAppSelector((state) => state.global.userId)
 
   const handleSubmit = async () => {
     if (!isFormValid()) return
-
-    const user = await getCurrentUserInfo().unwrap()
-    if (user) {
-      setUserId(user.userId)
-    }
 
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",

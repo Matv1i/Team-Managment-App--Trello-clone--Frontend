@@ -1,5 +1,9 @@
 "use client"
-import { useGetUsersQuery } from "@/state/api"
+import {
+  useGetCurrentUserInfoQuery,
+  useGetUsersByTeamIdQuery,
+  useGetUsersQuery,
+} from "@/state/api"
 import React from "react"
 import { useAppSelector } from "../redux"
 import Header from "@/components/Header"
@@ -44,7 +48,16 @@ const columns: GridColDef[] = [
 ]
 
 const Users = () => {
-  const { data: users, isLoading, isError } = useGetUsersQuery()
+  const { data: user } = useGetCurrentUserInfoQuery()
+  console.log(user?.teamId)
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useGetUsersByTeamIdQuery(user?.teamId || "", {
+    skip: !user?.teamId, // Skip the query until teamId is available
+  })
+  console.log(users)
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
 
   if (isLoading) return <div>Loading...</div>

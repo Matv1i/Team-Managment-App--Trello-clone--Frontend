@@ -3,7 +3,7 @@ import {
   Priority,
   Project,
   Task,
-  useGetCurrentUserInfoMutation,
+  useGetCurrentUserInfoQuery,
   useGetProjectIdQuery,
   useGetProjectsQuery,
   useGetTasksQuery,
@@ -29,43 +29,22 @@ import {
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils"
 
 const HomePage = () => {
-  const [userId, setUserId] = useState("")
   const [projectId, setProjectId] = useState("")
-
-  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
-
-  // Получение информации о пользователе и ID проекта
-  useEffect(() => {
-    const fetchUserAndProject = async () => {
-      try {
-        // Получаем информацию о пользователе
-        const user: User = await getCurrentUserInfo().unwrap()
-        console.log(user)
-        if (user) {
-          setUserId(user.userId)
-        }
-      } catch (error) {
-        console.error("Failed to fetch user info", error)
-      }
-    }
-    fetchUserAndProject()
-  }, [getCurrentUserInfo])
+  const { data: user } = useGetCurrentUserInfoQuery()
 
   // Используем хук useGetProjectIdQuery только после получения userId
   const { data: projectData, isLoading: projectLoading } = useGetProjectIdQuery(
-    userId,
+    user?.teamId,
     {
-      skip: !userId, // пропускаем запрос, если нет userId
+      skip: !user?.teamId, // пропускаем запрос, если нет userId
     }
   )
-  console.log(projectData)
 
-  // Устанавливаем projectId при наличии данных
   useEffect(() => {
     if (projectData && projectData) {
       setProjectId(projectData as string)
     }
-  }, [projectData])
+  }, [projectData, user])
 
   // Запрашиваем задачи по projectId только если он установлен
   const {
@@ -76,9 +55,9 @@ const HomePage = () => {
 
   // Запрашиваем проекты по userId
   const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery(
-    userId,
+    user?.teamId,
     {
-      skip: !userId,
+      skip: !user?.teamId,
     }
   )
 

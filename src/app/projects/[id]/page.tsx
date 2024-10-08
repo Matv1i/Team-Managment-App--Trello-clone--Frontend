@@ -14,7 +14,7 @@ type Props = {
 
 const Project = ({ params }: Props) => {
   const { id } = params
-  console.log(id)
+  console.log("projectId", id)
   const [activeTab, setActiveTab] = useState("Board")
   const [isModalNewTaskOpen, setisModalNewTaskOpen] = useState(false)
   const [taskExist, setTaskExist] = useState(false)
@@ -38,6 +38,7 @@ const Project = ({ params }: Props) => {
   return (
     <div>
       <ProjectHeader
+        idOfProject={id}
         taskExist={taskExist}
         activeTab={activeTab}
         setActiveTab={setActiveTab}

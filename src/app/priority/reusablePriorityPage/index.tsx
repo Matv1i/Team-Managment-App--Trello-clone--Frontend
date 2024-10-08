@@ -8,11 +8,11 @@ import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils"
 import {
   Priority,
   Task,
-  useGetCurrentUserInfoMutation,
+  useGetCurrentUserInfoQuery,
   useGetTaskByUserQuery,
 } from "@/state/api"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
 type Props = {
   priority: Priority
@@ -22,12 +22,15 @@ const ReusablePriority = ({ priority }: Props) => {
   const [view, setView] = useState("list")
   const [isModalOpen, setIsOpenModal] = useState(false)
 
-  const { data: user } = useGetCurrentUserInfoMutation()
+  const userId = useAppSelector((state) => state.global.userId)
+
+  const { data: user } = useGetCurrentUserInfoQuery()
+
   const {
     data: tasks,
     isLoading,
     isError: isTaskError,
-  } = useGetTaskByUserQuery(user.userId)
+  } = useGetTaskByUserQuery(userId)
 
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
 

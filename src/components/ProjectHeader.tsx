@@ -16,12 +16,19 @@ type Props = {
   activeTab: string
   setActiveTab: (tabName: string) => void
   taskExist: boolean
+  idOfProject: string
 }
-const ProjectHeader = ({ activeTab, setActiveTab, taskExist }: Props) => {
+const ProjectHeader = ({
+  activeTab,
+  setActiveTab,
+  taskExist,
+  idOfProject,
+}: Props) => {
   const [isModalNewProjectOpen, setIsModalNewProjectOpen] = useState(false)
   return (
     <div className="px-4 xl:px-6">
       <ModalNewTask
+        id={idOfProject}
         isOpen={isModalNewProjectOpen}
         onClose={() => setIsModalNewProjectOpen(false)}
       />

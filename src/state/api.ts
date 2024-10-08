@@ -52,7 +52,7 @@ export interface User {
 
   profilePictureUrl?: string
   cognitoId?: string
-  teamId?: number
+  teamId?: string
 }
 export interface Attachment {
   id: string
@@ -66,12 +66,15 @@ export interface SearchResults {
   projects?: Project[]
   users?: User[]
 }
+export interface SearchResultsTeams {
+  teams: Team[]
+}
 
 export interface Team {
-  taskId: string
+  id: string
   teamName?: string
-  productOwnerUserId?: number
-  projectManagerUserId?: number
+  productOwnerUserId?: string
+  projectManagerUserId?: string
 }
 
 export const api = createApi({
@@ -83,11 +86,11 @@ export const api = createApi({
   tagTypes: ["Projects", "Tasks", "User", "Teams"],
   endpoints: (build) => ({
     getProjects: build.query<Project[], String>({
-      query: (userId) => `projects/${userId}`,
+      query: (teamId) => `projects/${teamId}`,
       providesTags: ["Projects"],
     }),
     getProjectId: build.query<String, String>({
-      query: (userId) => `projects/projectId/${userId}`,
+      query: (teamId) => `projects/projectId/${teamId}`,
     }),
     createProject: build.mutation<Project, Partial<Project>>({
       query: (project) => ({
@@ -137,6 +140,7 @@ export const api = createApi({
       query: () => ({
         url: "/users/getUser",
       }),
+      providesTags: ["User", "Teams"],
     }),
     deleteCookies: build.mutation<VoidFunction, void>({
       query: () => ({
@@ -158,8 +162,16 @@ export const api = createApi({
     search: build.query<SearchResults, string>({
       query: (query) => `search?query=${query}`,
     }),
+    searchTeams: build.query<SearchResultsTeams, string>({
+      query: (query) => `search/teams?query=${query}`,
+    }),
     getUsers: build.query<User[], void>({
       query: () => "users",
+
+      providesTags: ["User"],
+    }),
+    getUsersByTeamId: build.query<User[], void>({
+      query: (teamId) => `users/${teamId}`,
 
       providesTags: ["User"],
     }),
@@ -167,6 +179,16 @@ export const api = createApi({
       query: () => "teams",
 
       providesTags: ["Teams"],
+    }),
+    getTeamById: build.query<Team, string>({
+      query: (teamId) => `teams/${teamId}`,
+    }),
+    changeTeam: build.mutation<User, { userId: string; teamId: string }>({
+      query: ({ userId, teamId }) => ({
+        url: `teams`,
+        method: "PATCH",
+        body: { userId, teamId },
+      }),
     }),
   }),
 })
@@ -186,4 +208,8 @@ export const {
   useGetCurrentUserInfoQuery,
   useDeleteCookiesMutation,
   useGetProjectIdQuery,
+  useSearchTeamsQuery,
+  useChangeTeamMutation,
+  useGetTeamByIdQuery,
+  useGetUsersByTeamIdQuery,
 } = api

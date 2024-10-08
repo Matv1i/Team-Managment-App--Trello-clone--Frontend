@@ -28,7 +28,11 @@ import Link from "next/link"
 import { Home } from "lucide-react"
 import isSideBarCollapsed, { setIsSidebarCollapsed } from "@/state/index"
 
-import { useGetCurrentUserInfoMutation, useGetProjectsQuery } from "@/state/api"
+import {
+  useGetCurrentUserInfoQuery,
+  useGetProjectsQuery,
+  useGetTeamByIdQuery,
+} from "@/state/api"
 import { error } from "console"
 import { Project, User } from "@/state/api"
 import { Button } from "@mui/material"
@@ -38,41 +42,32 @@ const Sidebar = () => {
   const [showProjects, setShowProjects] = useState(true)
   const [showPriority, setShowPriority] = useState(true)
   const [openProject, setOpenProject] = useState(false)
-  const [userId, setUserId] = useState<string>("")
+  const [teamName, setTeamName] = useState("")
+  const userId = useAppSelector((state) => state.global.userId)
   const [projects, setProjects] = useState<Project[] | []>([])
 
   const dispatch = useDispatch()
   const isSideBarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed
   )
+  const { data: user } = useGetCurrentUserInfoQuery()
 
-  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user: User = await getCurrentUserInfo().unwrap()
-        console.log(user)
-        if (user) {
-          setUserId(user.userId)
-        }
-      } catch (error) {
-        console.error("Failed to fetch user info", error)
-      }
-    }
-    fetchUser()
-  }, [getCurrentUserInfo])
+  const { data: team } = useGetTeamByIdQuery(user?.teamId, {
+    skip: !userId,
+  })
 
   const { data: projectsData, isLoading: isProjectsLoading } =
-    useGetProjectsQuery(userId, {
-      skip: !userId,
+    useGetProjectsQuery(user?.teamId, {
+      skip: !user?.teamId,
     })
-
   useEffect(() => {
+    if (team) {
+      setTeamName(team.team.teamName)
+    }
     if (projectsData) {
       if (Array.isArray(projectsData)) setProjects(projectsData)
     }
-  }, [projectsData])
+  }, [user, projectsData, team])
 
   const sidebarClassnames = `fixed flex flex-col  h-full 
   justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-black overflow-x-hidden bg-white ${isSideBarCollapsed ? "w-0 hidden" : "w-64"} `
@@ -103,7 +98,7 @@ const Sidebar = () => {
           />
           <div>
             <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
-              EDROH TEAM
+              {teamName === "" ? "You are not in team" : teamName}
             </h3>
             <div className="mt-1 flex items-start gap-2">
               <LockIcon className="mt-[0.1rem] h-3 w-3 text-gray-500 dark:text-gray-400" />
@@ -117,7 +112,7 @@ const Sidebar = () => {
           <SidebarLink icon={Search} label="Search" href="/search" />
           <SidebarLink icon={Settings} label="Settings" href="/settings" />
           <SidebarLink icon={User2Icon} label="Users" href="/users" />
-          <SidebarLink icon={Users} label="Teams" href="/teams" />
+          <SidebarLink icon={Users} label="Teams" href="/searchTeams" />
 
           <button
             className="flex w-full items-center justify-between px-8 py-3 text-gray-500"

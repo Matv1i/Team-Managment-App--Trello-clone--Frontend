@@ -5,11 +5,12 @@ import {
   Status,
   useCreateProjectMutation,
   useCreateTaskMutation,
-  useGetCurrentUserInfoMutation,
+  useGetCurrentUserInfoQuery,
   User,
 } from "@/state/api"
 import React, { useEffect, useState } from "react"
 import { formatISO } from "date-fns"
+import { useAppSelector } from "@/app/redux"
 
 type Props = {
   isOpen: boolean
@@ -26,29 +27,15 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
   const [tags, setTags] = useState("")
   const [startDate, setStartDate] = useState(new Date())
   const [dueDate, setDueDate] = useState("")
-  const [userId, setUserId] = useState<string>("")
+  const userId = useAppSelector((state) => state.global.userId)
   const [assignedUserId, setAssignedUserId] = useState("")
   const [projectId, setProjectId] = useState("")
-  const [getCurrentUserInfo] = useGetCurrentUserInfoMutation()
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user: User = await getCurrentUserInfo().unwrap()
-        console.log(user)
-        if (user) {
-          setUserId(user.userId)
-          setProjectId(id)
-        }
-      } catch (error) {
-        console.error("Failed to fetch user info", error)
-      }
-    }
-    fetchUser()
-  }, [getCurrentUserInfo])
+  const { data: user } = useGetCurrentUserInfoQuery()
 
   const handleSubmit = async () => {
-    if (!title || !status || !priority || !status) return
+    console.log(status)
+    console.log(priority)
+    setProjectId(id)
 
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",
@@ -111,9 +98,7 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
           <select
             className={selectStyles}
             value={status}
-            onChange={(e) =>
-              setStatus(Status[e.target.value as keyof typeof Status])
-            }
+            onChange={(e) => setStatus(e.target.value as Status)}
           >
             <option value="">Select Status</option>
             <option value={Status.ToDo}>To Do</option>
@@ -124,9 +109,7 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
           <select
             className={selectStyles}
             value={priority}
-            onChange={(e) =>
-              setPriority(Priority[e.target.value as keyof typeof Priority])
-            }
+            onChange={(e) => setPriority(e.target.value as Priority)}
           >
             <option value="">Select Priority</option>
             <option value={Priority.Urgent}>Urgent</option>

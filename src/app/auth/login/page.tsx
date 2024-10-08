@@ -1,10 +1,10 @@
 "use client"
 
 import { useAppSelector } from "@/app/redux"
-import { setIsLogged } from "@/state"
-import { useLoginUserMutation } from "@/state/api"
+import { setIsLogged, setUserId } from "@/state"
+import { useGetCurrentUserInfoQuery, useLoginUserMutation } from "@/state/api"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { z } from "zod"
 
@@ -16,12 +16,22 @@ const userSchema = z.object({
 const Login = () => {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+  const [teamId, setTeamId] = useState<string>("")
   const [error, setError] = useState<string | null>()
   const router = useRouter()
 
   const [loginUser, { isError, isLoading }] = useLoginUserMutation()
 
   const dispatch = useDispatch()
+  const { data: user } = useGetCurrentUserInfoQuery()
+  useEffect(() => {
+    if (user && user.teamId) {
+      setTeamId(String(user.teamId))
+    }
+    if (user) {
+      dispatch(setUserId(user.userId))
+    }
+  }, [user])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -34,9 +44,13 @@ const Login = () => {
       })
 
       if (response?.data) {
+        console.log(response.data)
         dispatch(setIsLogged(true))
-
-        router.push("/")
+        if (!teamId) {
+          router.push("/searchTeams")
+        } else {
+          router.push("/")
+        }
       } else if ("error" in response) {
         alert("Seomthing went wrong")
       }
