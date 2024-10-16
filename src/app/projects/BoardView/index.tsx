@@ -1,12 +1,12 @@
 import {
-  useDeleteTaskMutation,
+  useDeleteTaskMutation, useGetCurrentUserInfoQuery,
   useGetTasksQuery,
   useUpdateTaskStatusMutation,
 } from "@/state/api"
 
 import { Task as TaskType } from "@/state/api"
 import { drop } from "lodash"
-import React from "react"
+import React, {useState} from "react"
 import { DndProvider, useDrag } from "react-dnd"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { useDrop } from "react-dnd"
@@ -24,6 +24,7 @@ import {
 
 import { format } from "date-fns"
 import Image from "next/image"
+import Comments from "@/components/Modals/Comments";
 
 type BoardProps = {
   id: string
@@ -152,6 +153,8 @@ const TaskSingle = ({ task }: TaskProps) => {
       isDragging: !!monitor.isDragging(),
     }),
   }))
+  const[openModal, setOpenModal] = useState(false)
+  const{data:user} = useGetCurrentUserInfoQuery()
 
   const [deleteTask] = useDeleteTaskMutation()
 
@@ -192,16 +195,9 @@ const TaskSingle = ({ task }: TaskProps) => {
       }}
       className={`mb-3 rounded-md bg-white shadow dark:bg-dark-secondary ${isDragging ? "opacity-50" : "opacity-100"} `}
     >
-      {task.attachments && task.attachments.length > 0 && (
-        <Image
-          src={`https://pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/${task.attachments[0].fileURL}`}
-          alt={task.attachments[0].fileName}
-          width={400}
-          height={200}
-          className="h-auto w-full rounded-t-md"
-        />
-      )}
-      <div className="p-4 md:p-6">
+
+
+      <div className="p-4  md:p-6">
         <div className="flex items-start justify-between">
           <div className="flex flex-1 flex-wrap  items-center gap-2">
             {task.priority && <PriorityTags priority={task.priority} />}
@@ -237,9 +233,10 @@ const TaskSingle = ({ task }: TaskProps) => {
         </p>
         <div className="mt-4 border-t border-gray-200 dark:border-stroke-dark" />
         <div className="mt-3 flex items-center justify-between">
-          <div className="flex -space-x-[6px] overflow-hidden">
+          <div className="flex  -space-x-[6px] overflow-hidden">
             {task.assignee && (
-              <div className="flex gap-2">
+              <div className="flex   items-center gap-2">
+                <div className="flex justify-between gap-2 ">
                 {task.assignee.profilePictureUrl ? (
                   <img
                     key={task.assignee.profilePictureUrl}
@@ -254,11 +251,16 @@ const TaskSingle = ({ task }: TaskProps) => {
                 )}
 
                 <p className="pt-2 text-md">{task.assignee.username}</p>
+                  <MessageSquare onClick={()=>setOpenModal(true)}/>
+
+                </div>
               </div>
             )}
+
           </div>
         </div>
       </div>
+      {openModal && user &&(<Comments isOpen={openModal} onClose={()=>setOpenModal(false)} taskId={task.id} userId={user.userId } />)}
     </div>
   )
 }

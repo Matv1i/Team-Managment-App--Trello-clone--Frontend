@@ -42,7 +42,7 @@ export interface Task {
     author: User
     assignee: User
     comments: Comment[]
-    attachments?: Attachment[]
+
 }
 
 export interface User {
@@ -56,13 +56,17 @@ export interface User {
     teamId?: string
 }
 
-export interface Attachment {
-    id: string
-    fileURL: string
-    fileName: string
+export interface Comment {
+    id:string
+    text: string
+    userId: string
     taskId: string
-    uploadedBy: string
+
+    user:User
+    task:Task
 }
+
+
 
 export interface SearchResults {
     tasks: Task[]
@@ -92,7 +96,7 @@ export const api = createApi({
         credentials: "include",
     }),
     reducerPath: "api",
-    tagTypes: ["Projects", "Tasks", "User", "Teams"],
+    tagTypes: ["Projects", "Tasks", "User", "Teams", "Comments"],
     endpoints: (build) => ({
         getProjects: build.query<Project[], String>({
             query: (teamId) => `projects/${teamId}`,
@@ -109,6 +113,7 @@ export const api = createApi({
             }),
             invalidatesTags: ["Projects"],
         }),
+
         getTasks: build.query<Task[], { projectId: string }>({
             query: ({projectId}) => `tasks?projectId=${projectId}`,
             providesTags: (result) =>
@@ -136,6 +141,13 @@ export const api = createApi({
                 url: "users/register",
                 method: "POST",
                 body: user,
+            }),
+        }),
+        createComment: build.mutation<Comment, Partial<Comment>>({
+            query: (comment) => ({
+                url: "comments",
+                method: "POST",
+                body: comment,
             }),
         }),
         createTeam: build.mutation<Team, Partial<Team>>({
@@ -213,6 +225,11 @@ export const api = createApi({
 
             providesTags: ["User"],
         }),
+        getComments: build.query<Comment[], string>({
+            query: (id) => `comments/${id}`,
+
+            providesTags: ["Comments"],
+        }),
 
         getTeamById: build.query<Team, string>({
             query: (teamId) => `teams/${teamId}`,
@@ -251,4 +268,6 @@ export const {
     useEditTeamMutation,
     useDeleteTeamMutation,
     useDeleteTaskMutation,
+    useCreateCommentMutation,
+    useGetCommentsQuery
 } = api

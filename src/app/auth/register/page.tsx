@@ -8,7 +8,7 @@ import { z } from "zod"
 
 const userSchema = z.object({
   username: z.string().min(3, "Username is required"),
-  email: z.string().email("Invalid email adress"),
+  email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long  "),
 })
 
@@ -19,7 +19,7 @@ const Register = () => {
   const [username, setUsername] = useState<string>("")
   const [error, setError] = useState<string | null>()
   const router = useRouter()
-  const [createUser, { isLoading, isError, status }] = useCreateUserMutation()
+  const [createUser] = useCreateUserMutation()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
