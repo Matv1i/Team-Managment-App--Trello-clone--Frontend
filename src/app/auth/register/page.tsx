@@ -15,7 +15,7 @@ const userSchema = z.object({
 const Register = () => {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
-
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>("")
   const [username, setUsername] = useState<string>("")
   const [error, setError] = useState<string | null>()
   const router = useRouter()
@@ -30,6 +30,7 @@ const Register = () => {
         username,
         email,
         password,
+        profilePictureUrl,
       })
 
       if (response?.data) {
@@ -73,6 +74,22 @@ const Register = () => {
                 {error?.includes("email") ? "Invalid email adress" : null}
               </p>
             </div>
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="profilePricture"
+              className="block text-gray-700 mb-2 dark:text-white"
+            >
+              Url of avatar
+            </label>
+            <input
+              value={profilePictureUrl}
+              type="text"
+              id="profilePricture"
+              className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-primary"
+              required
+              onChange={(e) => setProfilePictureUrl(e.target.value.trim())}
+            />
           </div>
           <div className="mb-4">
             <label

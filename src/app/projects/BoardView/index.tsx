@@ -1,4 +1,8 @@
-import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api"
+import {
+  useDeleteTaskMutation,
+  useGetTasksQuery,
+  useUpdateTaskStatusMutation,
+} from "@/state/api"
 
 import { Task as TaskType } from "@/state/api"
 import { drop } from "lodash"
@@ -11,6 +15,11 @@ import {
   MessageSquare,
   MessageSquareMore,
   Plus,
+  Trash,
+  User,
+  User2Icon,
+  UserCircle,
+  UserCircle2,
 } from "lucide-react"
 
 import { format } from "date-fns"
@@ -24,7 +33,11 @@ type BoardProps = {
 const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"]
 
 const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
-  const { data: tasks, isLoading, error } = useGetTasksQuery({ projectId: id })
+  const {
+    data: tasks,
+    isLoading,
+    error,
+  } = useGetTasksQuery({ projectId: id }, { refetchOnFocus: true })
   const [updateTaskStatus] = useUpdateTaskStatusMutation()
 
   const moveTask = (taskId: string, toStatus: string) => {
@@ -140,6 +153,8 @@ const TaskSingle = ({ task }: TaskProps) => {
     }),
   }))
 
+  const [deleteTask] = useDeleteTaskMutation()
+
   const taskTagsSplit = task.tags ? task.tags.split(",") : []
 
   const formattedStartDate = task.startDate
@@ -150,8 +165,6 @@ const TaskSingle = ({ task }: TaskProps) => {
     ? format(new Date(task.dueDate), "P")
     : null
 
-  const numberOfComments = (task.comments && task.comments.length) || 0
-
   const PriorityTags = ({ priority }: { priority: TaskType["priority"] }) => (
     <div
       className={`rounded-full px-2 py-1 text-xs font-semibold ${priority === "Urgent" ? "bg-red-200 text-red-700" : priority === "High" ? "bg-yellowe-200 text-yellow-700" : priority === "Medium" ? "bg-green-200 text-green-700" : priority === "Low" ? "bg-blue-200 text-blue-700" : "bg-gray-200 text-gray-700"}`}
@@ -159,6 +172,18 @@ const TaskSingle = ({ task }: TaskProps) => {
       {priority}
     </div>
   )
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      if (!id) {
+        return alert("Something went wrong")
+      }
+      console.log(id)
+      await deleteTask({ id })
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <div
@@ -192,7 +217,7 @@ const TaskSingle = ({ task }: TaskProps) => {
             </div>
           </div>
           <button className="flex h-6 w-6 flex-shrink-0 items-center justify-center dark:text-neutral-500">
-            <EllipsisVertical size={26} />
+            <Trash onClick={() => handleDeleteTask(task.id)} />
           </button>
         </div>
         <div className="my-3 flex justify-between">
@@ -213,34 +238,24 @@ const TaskSingle = ({ task }: TaskProps) => {
         <div className="mt-4 border-t border-gray-200 dark:border-stroke-dark" />
         <div className="mt-3 flex items-center justify-between">
           <div className="flex -space-x-[6px] overflow-hidden">
-            {task.author && (
-              <Image
-                key={task.author.userId}
-                src={`https://pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/${task.author.profilePictureUrl!}
-                  `}
-                alt={`${task.author.username}`}
-                width={30}
-                height={30}
-                className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
-              />
+            {task.assignee && (
+              <div className="flex gap-2">
+                {task.assignee.profilePictureUrl ? (
+                  <img
+                    key={task.assignee.profilePictureUrl}
+                    src={task.assignee.profilePictureUrl}
+                    alt={`${task.author.username}`}
+                    width={30}
+                    height={30}
+                    className="h-8 w-8  rounded-full border-2 border-white object-cover dark:border-dark-secondary"
+                  />
+                ) : (
+                  <UserCircle2 />
+                )}
+
+                <p className="pt-2 text-md">{task.assignee.username}</p>
+              </div>
             )}
-            {task.author && (
-              <Image
-                key={task.assignee.userId}
-                src={`https://pm-s3-bucket-12er3te.s3.eu-north-1.amazonaws.com/${task.assignee.profilePictureUrl!}
-                  `}
-                alt={`${task.author.username}`}
-                width={30}
-                height={30}
-                className="h-8 w-8 rounded-full border-2 border-white object-cover dark:border-dark-secondary"
-              />
-            )}
-          </div>
-          <div className="flex items-center text-gray-500 dark:text-neutral-500">
-            <MessageSquareMore size={20} />
-            <span className="ml-1 text-sm dark:text-neutral-400">
-              {numberOfComments}
-            </span>
           </div>
         </div>
       </div>

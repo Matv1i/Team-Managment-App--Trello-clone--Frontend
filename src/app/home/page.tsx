@@ -34,7 +34,7 @@ const HomePage = () => {
 
   // Используем хук useGetProjectIdQuery только после получения userId
   const { data: projectData, isLoading: projectLoading } = useGetProjectIdQuery(
-    user?.teamId,
+    user?.teamId || "",
     {
       skip: !user?.teamId, // пропускаем запрос, если нет userId
     }
@@ -55,7 +55,7 @@ const HomePage = () => {
 
   // Запрашиваем проекты по userId
   const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery(
-    user?.teamId,
+    user?.teamId || "",
     {
       skip: !user?.teamId,
     }

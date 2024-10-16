@@ -20,6 +20,7 @@ import {
   X,
   User2Icon,
   Plus,
+  UserSearch,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useDispatch } from "react-redux"
@@ -52,24 +53,24 @@ const Sidebar = () => {
   )
   const { data: user } = useGetCurrentUserInfoQuery()
 
-  const { data: team } = useGetTeamByIdQuery(user?.teamId, {
+  const { data: team } = useGetTeamByIdQuery(user?.teamId || "", {
     skip: !userId,
   })
 
   const { data: projectsData, isLoading: isProjectsLoading } =
-    useGetProjectsQuery(user?.teamId, {
+    useGetProjectsQuery(user?.teamId || "", {
       skip: !user?.teamId,
     })
   useEffect(() => {
     if (team) {
-      setTeamName(team.team.teamName)
+      setTeamName(team.teamName)
     }
     if (projectsData) {
       if (Array.isArray(projectsData)) setProjects(projectsData)
     }
   }, [user, projectsData, team])
 
-  const sidebarClassnames = `fixed flex flex-col  h-full 
+  const sidebarClassnames = `   fixed flex flex-col  h-full 
   justify-between shadow-xl transition-all duration-300 h-full z-40 dark:bg-black overflow-x-hidden bg-white ${isSideBarCollapsed ? "w-0 hidden" : "w-64"} `
   return (
     <div className={`${sidebarClassnames} overflow-y-auto`}>
@@ -109,10 +110,13 @@ const Sidebar = () => {
         <nav className="z-10 w-full">
           <SidebarLink icon={Home} label="Home" href="/" />
           <SidebarLink icon={Briefcase} label="TimeLine" href="/timeline" />
-          <SidebarLink icon={Search} label="Search" href="/search" />
-          <SidebarLink icon={Settings} label="Settings" href="/settings" />
+
           <SidebarLink icon={User2Icon} label="Users" href="/users" />
-          <SidebarLink icon={Users} label="Teams" href="/searchTeams" />
+          <SidebarLink
+            icon={UserSearch}
+            label="Search Teams"
+            href="/searchTeams"
+          />
 
           <button
             className="flex w-full items-center justify-between px-8 py-3 text-gray-500"
@@ -127,6 +131,7 @@ const Sidebar = () => {
           </button>
           {showProjects && (
             <button
+              disabled={!user?.teamId}
               className={`w-full relative flex cursor-pointer items-center gap-3 transition-colors hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-700  justify-start px-8 py-3`}
               onClick={() => setOpenProject(true)}
             >

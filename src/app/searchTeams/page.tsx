@@ -1,20 +1,21 @@
 "use client"
 import TeamCard from "@/components/Cards/TeamCard"
 import { useGetCurrentUserInfoQuery, useSearchTeamsQuery } from "@/state/api"
-import { randomUUID } from "crypto"
+
 import { debounce } from "lodash"
 import React, { useEffect, useState } from "react"
 import { ring } from "ldrs"
 import { useAppSelector } from "../redux"
-import { Plus, PlusCircle, PlusIcon } from "lucide-react"
-import ModalNewTeam from "@/components/Modals/ModalNewTeam";
+import { PlusIcon } from "lucide-react"
+import ModalNewTeam from "@/components/Modals/ModalNewTeam"
 
 const Page = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [userTeamid, setUserTeamId] = useState<string | undefined>(undefined)
-  const[openModal, setOpenModal]  = useState(false)
-  const userId = useAppSelector((state) => state.global.userId)
-  ring.register()
+  const [openModal, setOpenModal] = useState(false)
+
+
+
 
   const { data: user } = useGetCurrentUserInfoQuery(undefined, {
     refetchOnFocus: true,
@@ -58,7 +59,8 @@ const Page = () => {
 
   return (
     <div className="dark:bg-dark-secondary h-full flex flex-col justify-start items-center bg-gray-50 py-10">
-      <div onClick={()=>setOpenModal(true)}
+      <div
+        onClick={() => setOpenModal(true)}
         className="cursor-pointer fixed px-3 leading-0 py-3 text-2 text-white
       xl font-bold bg-blue-600 rounded-full right-7 bottom-6"
       >
@@ -79,17 +81,7 @@ const Page = () => {
         />
       </div>
       <div className="w-full px-5 mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {isLoading ? (
-          <div className="flex justify-center w-full mt-10">
-            <l-ring
-              size="40"
-              stroke="5"
-              bg-opacity="0"
-              speed="2"
-              color="black"
-            ></l-ring>
-          </div>
-        ) : searchResults &&
+        { searchResults &&
           Array.isArray(searchResults) &&
           searchResults.length > 0 ? (
           searchResults.map((team) => (
@@ -111,8 +103,8 @@ const Page = () => {
           </div>
         )}
       </div>
-      {openModal &&(
-          <ModalNewTeam isOpen={openModal} onClose={()=>setOpenModal((false))}/>
+      {openModal && (
+        <ModalNewTeam isOpen={openModal} onClose={() => setOpenModal(false)} />
       )}
     </div>
   )

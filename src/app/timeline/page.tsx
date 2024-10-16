@@ -1,6 +1,6 @@
 "use client"
 import { useAppSelector } from "@/app/redux"
-import { useGetProjectsQuery, useGetTasksQuery } from "@/state/api"
+import {useGetCurrentUserInfoQuery, useGetProjectsQuery, useGetTasksQuery} from "@/state/api"
 import React, { useMemo, useState } from "react"
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react"
 
@@ -10,8 +10,10 @@ import Header from "@/components/Header"
 type TaskTypeItems = "task" | "milestone" | "project"
 const TimelineView = () => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
-
-  const { data: projects, isLoading, error } = useGetProjectsQuery()
+  const {data:user} = useGetCurrentUserInfoQuery()
+  const { data: projects, isLoading, error } = useGetProjectsQuery(user?.teamId || "",{
+    skip:!user?.teamId
+  })
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,

@@ -4,7 +4,7 @@ import { setIsLogged, setUserId } from "@/state"
 import {
   useDeleteCookiesMutation,
   useGetCurrentUserInfoQuery,
-  useGetTeamByIdQuery,
+
 } from "@/state/api"
 import { LogOut, User } from "lucide-react"
 import Link from "next/link"

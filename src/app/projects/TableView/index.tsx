@@ -68,10 +68,11 @@ export const columns: GridColDef[] = [
 ]
 
 const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
+  const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
   const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId: id })
   if (isLoading) return <h1>Loading...</h1>
   if (error) return <h1>An error occurred while fetching tasks</h1>
-  const isDarkMode = useAppSelector((state) => state.global.isDarkMode)
+
   return (
     <div className="min-h-screen w-full px-4 pb-8 xl:px-6 text-xl font-bold">
       <div className="pt-5">

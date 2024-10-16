@@ -6,6 +6,7 @@ import {
   useCreateProjectMutation,
   useCreateTaskMutation,
   useGetCurrentUserInfoQuery,
+  useGetUsersByTeamIdQuery,
   User,
 } from "@/state/api"
 import React, { useEffect, useState } from "react"
@@ -31,12 +32,13 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
   const [assignedUserId, setAssignedUserId] = useState("")
   const [projectId, setProjectId] = useState("")
   const { data: user } = useGetCurrentUserInfoQuery()
-
-  const handleSubmit = async () => {
-    console.log(status)
-    console.log(priority)
+  useEffect(() => {
     setProjectId(id)
-
+  }, [])
+  const { data: users } = useGetUsersByTeamIdQuery(user?.teamId || "", {
+    skip: !user?.teamId, // Skip the query until teamId is available
+  })
+  const handleSubmit = async () => {
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",
     })
@@ -44,8 +46,7 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
     const formattedDueDate = formatISO(new Date(dueDate), {
       representation: "complete",
     })
-    console.log(typeof formattedDueDate)
-    console.log(projectId)
+
     const newTask = await createTask({
       title,
       description,
@@ -142,13 +143,22 @@ const ModalNewTask = ({ isOpen, onClose, id }: Props) => {
           />
         </div>
 
-        <input
-          type="text"
+        <select
           className={inputStyles}
-          placeholder="Assigned User ID"
           value={assignedUserId}
           onChange={(e) => setAssignedUserId(e.target.value)}
-        />
+        >
+          <option value="">Select a user</option>
+          {users?.map((user) => (
+            <option
+              key={user.userId}
+              className={inputStyles}
+              value={user.userId}
+            >
+              {user.username}
+            </option>
+          ))}
+        </select>
 
         <button
           type="submit"

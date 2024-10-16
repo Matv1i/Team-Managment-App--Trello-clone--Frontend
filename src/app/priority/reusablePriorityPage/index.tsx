@@ -39,20 +39,10 @@ const ReusablePriority = ({ priority }: Props) => {
   if (isTaskError || !tasks) return <div> Error Fetching tasks</div>
   return (
     <div className="m-5 p-4">
-      <ModalNewTask
-        isOpen={isModalOpen}
-        onClose={() => setIsOpenModal(false)}
-      />
+
       <Header
         name="Priority Page"
-        buttonComponent={
-          <button
-            className="mr-3 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-            onClick={() => setIsOpenModal(true)}
-          >
-            Add Task
-          </button>
-        }
+
       />
       <div className="mb-4 flex justify-start">
         <button
