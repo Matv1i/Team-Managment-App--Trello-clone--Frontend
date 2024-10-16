@@ -17,10 +17,11 @@ type Props = {
     userId:string
     taskId:string
     isOpen: boolean
+    projectId:string
     onClose: () => void
 }
 
-const Comments = ({userId, taskId, isOpen, onClose }: Props) => {
+const Comments = ({projectId, userId, taskId, isOpen, onClose }: Props) => {
    const [createComment, isError] = useCreateCommentMutation()
     const router = useRouter()
     const {data: comments} = useGetCommentsQuery(taskId
@@ -56,9 +57,9 @@ const Comments = ({userId, taskId, isOpen, onClose }: Props) => {
 
 
 
-            <div className="w-full items-start justify-center" >
+            <div className="w-full items-start justify-center h-100 overflow-y-auto  " >
                 {comments &&  comments.map((comment) =>
-                 (   <CommentByUser key={comment.id} text={comment.text} username={comment.user.username} profileUrl={comment.user.profilePictureUrl}  />)
+                 (   <CommentByUser  key={comment.id} text={comment.text}  username={comment.user.username} profileUrl={comment.user.profilePictureUrl || ""}  />)
                 )}
 
                 <div className="w-full  gap-2 px-2 flex h-50">
